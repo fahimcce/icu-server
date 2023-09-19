@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -38,13 +38,22 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result)
         })
-        // new ICU add
+        // Post ICU 
         app.post('/icu', async (req, res) => {
             const icu = req.body;
             console.log(icu)
             const result = await icuCollection.insertOne(icu)
             res.send(result)
         })
+        // Delete single icu
+        app.delete('/icu/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log('please delete', id)
+            const query = { _id: ObjectId }
+            const result = await icuCollection.deleteOne(query)
+            res.send(result)
+        })
+
 
 
         // Get Doctors
