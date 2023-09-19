@@ -1,19 +1,16 @@
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config()
+require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
-//middlewares
+// Middlewares
 app.use(cors());
 app.use(express.json());
 
-
 const uri = `mongodb+srv://${process.env.db_user}:${process.env.db_password}@cluster0.wisjawo.mongodb.net/?retryWrites=true&w=majority`;
 
-
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
@@ -24,70 +21,81 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-        // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
 
-        const database = client.db('icubd')
+        const database = client.db('icubd');
         const icuCollection = database.collection('details');
         const doctorCollection = database.collection('doctors');
 
+        // Middleware for admin authorization
+        function isAdmin(req, res, next) {
+            const userRole = req.headers['x-user-role'];
+            if (userRole === 'admin') {
+                next();
+            } else {
+                res.status(403).send('Access denied. You are not an admin.');
+            }
+        }
 
-        // Get ICU 
+        // API endpoints accessible only to admins
+        app.use('/admin', isAdmin);
+
+
+
+
+
+
+        // Get ICU (Accessible to all users)
         app.get('/icu', async (req, res) => {
             const cursor = icuCollection.find();
             const result = await cursor.toArray();
-            res.send(result)
-        })
-        // Post ICU 
-        app.post('/icu', async (req, res) => {
+            res.send(result);
+        });
+
+        // Post ICU (Admin-only access)
+        app.post('/admin/icu', async (req, res) => {
             const icu = req.body;
-            console.log(icu)
-            const result = await icuCollection.insertOne(icu)
-            res.send(result)
-        })
-        // Delete single icu
-        app.delete('/icu/:id', async (req, res) => {
+            const result = await icuCollection.insertOne(icu);
+            res.send(result);
+        });
+
+        // Delete single icu (Admin-only access)
+        app.delete('/admin/icu/:id', async (req, res) => {
             const id = req.params.id;
-            console.log('please delete', id)
-            const query = { _id: ObjectId }
-            const result = await icuCollection.deleteOne(query)
-            res.send(result)
-        })
+            const query = { _id: ObjectId(id) };
+            const result = await icuCollection.deleteOne(query);
+            res.send(result);
+        });
 
-
-
-        // Get Doctors
+        // Get Doctors (Accessible to all users)
         app.get('/doctors', async (req, res) => {
             const cursor = doctorCollection.find();
             const result = await cursor.toArray();
-            res.send(result)
-        })
-        // new doctor add
-        app.post('/doctors', async (req, res) => {
+            res.send(result);
+        });
+
+        // Add new doctor (Admin-only access)
+        app.post('/admin/doctors', async (req, res) => {
             const doctors = req.body;
-            console.log(doctors)
-            const result = await doctorCollection.insertOne(doctors)
-            res.send(result)
-        })
-
-
+            const result = await doctorCollection.insertOne(doctors);
+            res.send(result);
+        });
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
-        // Ensures that the client will close when you finish/error
+        // Ensure that the client will close when you finish/error
         // await client.close();
     }
 }
+
 run().catch(console.dir);
-
-
 
 app.get('/', (req, res) => {
     res.send("Server showing Successfully");
-})
+});
 
 app.listen(port, () => {
     console.log(`listening on port ${port}`);
-})
+});
