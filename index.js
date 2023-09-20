@@ -26,6 +26,8 @@ async function run() {
         const database = client.db('icubd');
         const icuCollection = database.collection('details');
         const doctorCollection = database.collection('doctors');
+        const medicineCollection = database.collection('medicines');
+        const labCollection = database.collection('labs');
 
         // Middleware for admin authorization
         function isAdmin(req, res, next) {
@@ -53,16 +55,16 @@ async function run() {
         });
 
         // Post ICU (Admin-only access)
-        app.post('/admin/icu', async (req, res) => {
+        app.post('/icu', async (req, res) => {
             const icu = req.body;
             const result = await icuCollection.insertOne(icu);
             res.send(result);
         });
 
         // Delete single icu (Admin-only access)
-        app.delete('/admin/icu/:id', async (req, res) => {
+        app.delete('/icu/:id', async (req, res) => {
             const id = req.params.id;
-            const query = { _id: ObjectId(id) };
+            const query = { _id: new ObjectId(id) };
             const result = await icuCollection.deleteOne(query);
             res.send(result);
         });
@@ -75,11 +77,50 @@ async function run() {
         });
 
         // Add new doctor (Admin-only access)
-        app.post('/admin/doctors', async (req, res) => {
+        app.post('/doctors', async (req, res) => {
             const doctors = req.body;
             const result = await doctorCollection.insertOne(doctors);
             res.send(result);
         });
+
+        //get medicine
+        app.get('/medicine', async (req, res) => {
+            const cursor = medicineCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        //delete medicine
+        app.delete('/medicine/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log("delete id", id)
+            const query = { _id: new ObjectId(id) }
+            const result = await medicineCollection.deleteOne(query)
+            res.send(result);
+        });
+
+        // Post medicines
+        app.post('/medicine', async (req, res) => {
+            const medicine = req.body;
+            const result = await medicineCollection.insertOne(medicine);
+            res.send(result);
+        });
+
+
+        // get lab Test
+        app.get('/lab', async (req, res) => {
+            const cursor = labCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+        // Post lab Test
+        app.post('/lab', async (req, res) => {
+            const lab = req.body;
+            const result = await labCollection.insertOne(lab);
+            res.send(result);
+        });
+
+
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
