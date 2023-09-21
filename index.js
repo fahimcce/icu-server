@@ -31,6 +31,7 @@ async function run() {
         const medicineCollection = database.collection('medicines');
         const labCollection = database.collection('labs');
         const donarCollection = database.collection('donar');
+        const ambulanceCollection = database.collection('ambulance');
 
         // Middleware for admin authorization
         function isAdmin(req, res, next) {
@@ -80,6 +81,13 @@ async function run() {
         app.post('/doctors', async (req, res) => {
             const doctors = req.body;
             const result = await doctorCollection.insertOne(doctors);
+            res.send(result);
+        });
+        //delete doctor
+        app.delete('/doctors/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await doctorCollection.deleteOne(query)
             res.send(result);
         });
         // ----------------------------------------------------------------------------
@@ -146,12 +154,37 @@ async function run() {
             const result = await donarCollection.insertOne(donar);
             res.send(result);
         });
+        // delete donar
         app.delete('/donar/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await donarCollection.deleteOne(query)
             res.send(result);
         });
+        // ----------------------------------------------------------------------
+
+        // ------------------------------------ambolance-----------------------------
+        // get ambulance
+        app.get('/ambulance', async (req, res) => {
+            const cursor = ambulanceCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+        // Create Ambulance
+        app.post('/ambulance', async (req, res) => {
+            const ambulance = req.body;
+            const result = await ambulanceCollection.insertOne(ambulance);
+            res.send(result);
+        });
+        // delete Ambulances
+        app.delete('/ambulance/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await ambulanceCollection.deleteOne(query)
+            res.send(result);
+        });
+        // ------------------------------------------------------------
+
 
 
 
