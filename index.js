@@ -9,6 +9,8 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+
+
 const uri = `mongodb+srv://${process.env.db_user}:${process.env.db_password}@cluster0.wisjawo.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
@@ -142,6 +144,12 @@ async function run() {
         app.post('/donar', async (req, res) => {
             const donar = req.body;
             const result = await donarCollection.insertOne(donar);
+            res.send(result);
+        });
+        app.delete('/donar/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await donarCollection.deleteOne(query)
             res.send(result);
         });
 
