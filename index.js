@@ -236,6 +236,29 @@ async function run() {
             const result = await labCollection.deleteOne(query)
             res.send(result);
         });
+        // Update medicine
+        app.get('/update/lab/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const lab = await labCollection.findOne(query);
+            res.send(lab)
+        })
+        app.put('/update/lab/:id', async (req, res) => {
+            const id = req.params.id;
+            const lab = req.body;
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true }
+            const UpdateLab = {
+                $set: {
+                    name: lab.name,
+                    price: lab.price
+                }
+            }
+            const result = await labCollection.updateOne(filter, UpdateLab, options)
+            res.send(result)
+
+        })
+
         // -----------------------------------------------------------------------------
 
         // ---------------------------------BloodDonar----------------------------------
@@ -258,6 +281,32 @@ async function run() {
             const result = await donarCollection.deleteOne(query)
             res.send(result);
         });
+        // Update Donar
+        app.get('/update/blood/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const donar = await donarCollection.findOne(query);
+            res.send(donar)
+        })
+        app.put('/update/blood/:id', async (req, res) => {
+            const id = req.params.id;
+            const donar = req.body;
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true }
+            const UpdateDonar = {
+                $set: {
+                    name: donar.name,
+                    contact: donar.contact,
+                    group: donar.group,
+                    photo: donar.photo
+                }
+            }
+            const result = await donarCollection.updateOne(filter, UpdateDonar, options)
+            res.send(result)
+
+        })
+
+
         // ----------------------------------------------------------------------
 
         // ------------------------------------ambolance-----------------------------
@@ -280,6 +329,30 @@ async function run() {
             const result = await ambulanceCollection.deleteOne(query)
             res.send(result);
         });
+        // Update Ambulance
+        app.get('/update/ambulance/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const ambolance = await ambulanceCollection.findOne(query);
+            res.send(ambolance)
+        })
+        app.put('/update/ambulance/:id', async (req, res) => {
+            const id = req.params.id;
+            const ambulance = req.body;
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true }
+            const UpdateAmbulance = {
+                $set: {
+                    name: ambulance.name,
+                    contact: ambulance.contact,
+                    category: ambulance.category,
+                    photo: ambulance.photo
+                }
+            }
+            const result = await ambulanceCollection.updateOne(filter, UpdateAmbulance, options)
+            res.send(result)
+
+        })
         // ------------------------------------------------------------
 
 
