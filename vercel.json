@@ -14,8 +14,10 @@
                 "GET",
                 "POST",
                 "DELETE",
-                "UPDATE",
-                "USE"
+                "PUT",
+                "PATCH",
+                "USE",
+                "OPTIONS"
             ]
         }
     ]
