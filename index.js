@@ -21,6 +21,28 @@ const client = new MongoClient(uri, {
     }
 });
 
+const currentDate = new Date();
+
+// Options for formatting date
+const dateOptions = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+};
+
+// Options for formatting time
+const timeOptions = {
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true, // Set to true to use 12-hour format
+};
+
+const formattedDate = currentDate.toLocaleString('en-US', dateOptions);
+const formattedTime = currentDate.toLocaleString('en-US', timeOptions);
+const time = `Date: ${formattedDate} || Time: ${formattedTime}`;
+
+
 async function run() {
     try {
         await client.connect();
@@ -67,6 +89,32 @@ async function run() {
             const result = await icuCollection.deleteOne(query);
             res.send(result);
         });
+        // Update ICU
+        app.get('/update/icu/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const icu = await icuCollection.findOne(query);
+            res.send(icu)
+        })
+        app.put('/update/icu/:id', async (req, res) => {
+            const id = req.params.id;
+            const icu = req.body;
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true }
+            const UpdateICU = {
+                $set: {
+                    name: icu.name,
+                    seat: icu.seat,
+                    price: icu.price,
+                    details: icu.details,
+                    contact: icu.contact,
+                    time: `Date: ${formattedDate} || Time: ${formattedTime}`
+                }
+            }
+            const result = await icuCollection.updateOne(filter, UpdateICU, options)
+            res.send(result)
+
+        })
         // ----------------------------------------------------------------------------
 
 
@@ -90,6 +138,33 @@ async function run() {
             const result = await doctorCollection.deleteOne(query)
             res.send(result);
         });
+        // Update doctor
+        app.get('/update/doctor/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const doctor = await doctorCollection.findOne(query);
+            res.send(doctor)
+        })
+        app.put('/update/doctor/:id', async (req, res) => {
+            const id = req.params.id;
+            const doctor = req.body;
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true }
+            const UpdateDoctor = {
+                $set: {
+                    doctorName: doctor.doctorName,
+                    designation: doctor.designation,
+                    fees: doctor.fees,
+                    categories: doctor.categories,
+                    photo: doctor.photo,
+                    details: doctor.details
+                }
+            }
+            const result = await doctorCollection.updateOne(filter, UpdateDoctor, options)
+            res.send(result)
+
+        })
+
         // ----------------------------------------------------------------------------
 
 
