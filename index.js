@@ -190,6 +190,28 @@ async function run() {
             const result = await medicineCollection.deleteOne(query)
             res.send(result);
         });
+        // Update medicine
+        app.get('/update/medicine/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const medicine = await medicineCollection.findOne(query);
+            res.send(medicine)
+        })
+        app.put('/update/medicine/:id', async (req, res) => {
+            const id = req.params.id;
+            const medicine = req.body;
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true }
+            const UpdateMedicine = {
+                $set: {
+                    name: medicine.name,
+                    price: medicine.price
+                }
+            }
+            const result = await medicineCollection.updateOne(filter, UpdateMedicine, options)
+            res.send(result)
+
+        })
         // --------------------------------------------------------------------
 
 
